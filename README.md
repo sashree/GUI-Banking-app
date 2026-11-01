@@ -125,36 +125,6 @@ src/main/java/com/nexabank/
 12. **Event handling** — `ActionListener`, document listeners, mouse hover
 13. **Java Swing** — frames, tables, timers, custom painting
 
-## Design notes for viva
-
-- Money uses `BigDecimal`, never `float` or `double`.
-- Transfers update both accounts and both ledger rows inside `DatabaseManager.inTransaction`.
-- PINs are not stored in plaintext.
-- The GUI does not contain banking rules; panels call `AuthService` and `BankingService`.
-- `SwingUtilities.invokeLater` is used in `NexaBankApp.main`.
-
-## Example viva questions
-
-**Q. Why is `AbstractAccount` abstract?**  
-A. Shared balance rules live in one place, while product-specific rules such as minimum balance are overridden by `SavingsAccount`. That is inheritance plus abstraction without extra unused subclasses.
-
-**Q. How does polymorphism appear in transfers vs deposits?**  
-A. Each action is a `BankOperation`. `BankingService.execute` calls `perform` without knowing which subclass it received.
-
-**Q. Why `BigDecimal`?**  
-A. Binary floating-point cannot represent most decimal rupees exactly. `BigDecimal` with scale 2 keeps ledger math exact for a classroom demo.
-
-**Q. How is the PIN protected?**  
-A. A random salt is stored next to a PBKDF2 hash. Login re-hashes the typed PIN and compares it in constant time.
-
-**Q. What happens if a transfer fails halfway?**  
-A. The work runs in one SQLite transaction. Any `BankingException` triggers rollback, so neither account is left half-updated.
-
-**Q. Where is encapsulation in the UI?**  
-A. Frames never touch SQL. They call services. Repositories never paint Swing components.
-
-**Q. Is this safe for real banking?**  
-A. No. It is a local simulator without network security, audit compliance, or a real payments rail.
 
 ## Testing checklist
 
